@@ -14,16 +14,15 @@
 </div>
 
 <div class="middle">
-  <h1>Aktywne głosowania:</h1>
-  {% if questions %}
-    <ul>
-    {% for question in questions %}
-        <li><a href="/polls/{{ question.id }}/">{{ question.question_text }}</a></li>
-    {% endfor %}
-    </ul>
-{% else %}
-    <p>No polls are available.</p>
-{% endif %}
+  <h1>{{ question.question_text }}</h1>
+    <form>
+        <ul>
+        {% for choice in question.choice_set.all %}
+        <li><label for="{{choice.id}}"><input id="{{choice.id}}" type="radio" name="{{choice.choice_text}}" value="{{choice.choice_text}}" required>{{choice.choice_text}}</label></li>
+        {% endfor %}
+        </ul>
+        <input type="submit" value="OK">
+    </form>
 </div>
 
 <div class="footer">
