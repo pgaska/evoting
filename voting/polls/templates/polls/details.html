@@ -1,6 +1,8 @@
 <link rel="stylesheet" href="../../static/polls/style.css">{% load static %}
 
 <link rel="stylesheet" type="text/css" href="{% static 'polls/style.css' %}">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
 <div class="header">
   <h1>System wyborów elektronicznych</h1>
 </div>
@@ -13,18 +15,26 @@
 </ul>
 </div>
 
-<div class="middle">
-  <h1>{{ question.question_text }}</h1>
-    <form>
-        <ul>
+
+<div class="container">
+  <div class="row">
+    <div class="col-">
+    </div>
+    <div class="col-xl-">
+    <h1>{{ question.question_text }}</h1>
+    <form method="post">
         {% for choice in question.choice_set.all %}
-        <li><label for="{{choice.id}}"><input id="{{choice.id}}" type="radio" name="{{choice.choice_text}}" value="{{choice.choice_text}}" required>{{choice.choice_text}}</label></li>
+             <input type="radio" name="choice" id="choice{{ forloop.counter }}" value="{{ choice.id }}">
+             <label for="choice{{ forloop.counter }}">{{ choice.choice_text }}</label><br>
         {% endfor %}
-        </ul>
-        <input type="submit" value="OK">
+        <input type="submit" value="Zagłosuj" class="btn btn-success">
     </form>
+    </div>
+    <div class="col-">
+    </div>
+  </div>
 </div>
 
 <div class="footer">
-  Stopka
+  &copy; K. Musolff, P. Gąska
 </div>
