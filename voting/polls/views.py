@@ -16,3 +16,7 @@ def receipt(request):
 def details(request, question_id):
     question = get_object_or_404(Question, pk=question_id)
     return render(request, 'polls/details.html', {'question':question})
+
+def choose_digit(request, question_id):
+    question = get_object_or_404(Question, pk=question_id)
+    return render(request, 'polls/choose_digit.html', {'question':question})
