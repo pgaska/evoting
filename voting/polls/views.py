@@ -1,6 +1,7 @@
 from django.http import HttpResponse
-from django.shortcuts import render, get_object_or_404
-from .models import Question, Choice
+from django.shortcuts import render, get_object_or_404, redirect
+from .models import Question, Choice, Vote
+from .forms import AddDigits, AddVote
 from .ecurve.elliptic import EllipticCurve
 from .ecurve.elgamal import Elgamal
 from .ecurve.point import Point
@@ -35,7 +36,6 @@ def details(request, question_id):
 def choose_digit(request, question_id):
     question = get_object_or_404(Question, pk=question_id)
     for choice in question.choice_set.all():
-        print(choice.id)
         curve = Curve()
         elgamal = Elgamal(curve)
         (publickey, privatekey) = elgamal.keygen()
@@ -56,3 +56,42 @@ def choose_digit(request, question_id):
 
 
     return render(request, 'polls/choose_digit.html', {'question':question})
+
+def post_digits(request, question_id):
+    question = get_object_or_404(Question, pk=question_id)
+    choices = question.choice_set.all()
+    ids=[]
+    for choice in choices:
+        ids.append(choice.id)
+    if request.method == "POST":
+        form = AddDigits(ids, request.POST)
+        if form.is_valid():
+            for choice in choices:
+                value = form.cleaned_data['choice'+str(choice.id)]
+                if value[6] == '0':
+                    choice.chosen_answer = choice.ciphered_answer_0
+                    choice.chosen_key = choice.private_key_0
+                    choice.save()
+                elif value[6] == '1':
+                    choice.chosen_answer = choice.ciphered_answer_1
+                    choice.chosen_key = choice.private_key_1
+                    choice.save()
+
+            return redirect(details, question_id=question_id)
+
+def cast_vote(request, question_id):
+    question = get_object_or_404(Question, pk=question_id)
+    choices = question.choice_set.all()
+    ids = []
+    for choice in choices:
+        ids.append(choice.id)
+    if request.method == "POST":
+        form = AddVote(ids, request.POST)
+        print(form)
+        if form.is_valid():
+            answer = form.cleaned_data['choice']
+            choice = get_object_or_404(Choice, pk=int(answer))
+            vote = Vote(question=question, ciphered_answer=choice.chosen_answer, private_key=choice.chosen_key)
+            vote.save()
+
+    return redirect(index)

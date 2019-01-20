@@ -21,7 +21,8 @@
   </div>
   <div class="row">
     <div class="col-lg-12 order-1 order-lg-2">
-      <form method="post">
+      <form action="{% url 'post_digits' question.id %}" method="post">
+          {% csrf_token %}
             <table class="table">
                 <thead>
                 <tr>
@@ -37,15 +38,15 @@
                 <th scope="row">{{ forloop.counter }}</th>
                 <td>{{choice.choice_text}}</td>
                 <td>
-                    <input class="form-check-input" type="radio" name="choice{{choice.id}}" id="choice0{{choice.id}}">
+                    <input class="form-check-input" type="radio" name="choice{{choice.id}}" id="choice0{{choice.id}}" value="choice0{{choice.id}}">
                     <label class="form-check-label" for="choice0{{choice.id}}">
                       {{choice.ciphered_answer_0}}
                     </label>
                 </td>
                 <td>
-                    <input class="form-check-input" type="radio" name="choice{{choice.id}}" id="choice1{{choice.id}}">
+                    <input class="form-check-input" type="radio" name="choice{{choice.id}}" id="choice1{{choice.id}}" value="choice1{{choice.id}}1">
                     <label class="form-check-label" for="choice1{{choice.id}}">
-                      {{ciphered_answer_1}}
+                      {{choice.ciphered_answer_1}}
                     </label>
                 </td>
               </tr>
