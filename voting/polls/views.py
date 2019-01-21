@@ -39,7 +39,8 @@ def receipt_details(request, receipt_id):
 
 def details(request, question_id, receipt_id):
     question = get_object_or_404(Question, pk=question_id)
-    return render(request, 'polls/details.html', {'question':question})
+    receipt = get_object_or_404(Receipt, pk=receipt_id)
+    return render(request, 'polls/details.html', {'question':question, 'receipt':receipt})
 
 def choose_digit(request, question_id):
     question = get_object_or_404(Question, pk=question_id)
@@ -74,6 +75,8 @@ def post_digits(request, question_id):
     if request.method == "POST":
         form = AddDigits(ids, request.POST)
         if form.is_valid():
+            receipt = Receipt()
+            receipt.save()
             for choice in choices:
                 value = form.cleaned_data['choice'+str(choice.id)]
                 if value[6] == '0':
@@ -82,7 +85,7 @@ def post_digits(request, question_id):
                     choice.save()
                     chosen_digit = ChosenDigits(question=question, public_key_x=choice.public_key_x_0,
                                                 public_key_y=choice.public_key_y_0, private_key=choice.private_key_0,
-                                                Choice=choice, chosen_answer=choice.chosen_answer)
+                                                Choice=choice, chosen_answer=choice.chosen_answer, receipt=receipt)
                     chosen_digit.save()
                 elif value[6] == '1':
                     choice.chosen_answer = choice.ciphered_answer_1
@@ -90,12 +93,13 @@ def post_digits(request, question_id):
                     choice.save()
                     chosen_digit = ChosenDigits(question=question, public_key_x=choice.public_key_x_1,
                                                 public_key_y=choice.public_key_y_1, private_key=choice.private_key_1,
-                                                Choice=choice, chosen_answer=choice.chosen_answer)
+                                                Choice=choice, chosen_answer=choice.chosen_answer, receipt=receipt)
                     chosen_digit.save()
 
-            return redirect(details, question_id=question_id)
+            return redirect(details, question_id=question_id, receipt_id=receipt.id)
 
-def cast_vote(request, question_id):
+
+def cast_vote(request, question_id, receipt_id):
     question = get_object_or_404(Question, pk=question_id)
     choices = question.choice_set.all()
     ids = []
@@ -108,12 +112,8 @@ def cast_vote(request, question_id):
             choice = get_object_or_404(Choice, pk=int(answer))
             vote = Vote(question=question, ciphered_answer=choice.chosen_answer, private_key=choice.chosen_key)
             vote.save()
-            receipt = Receipt(vote=vote, chosen_answer=choice.chosen_answer)
-            receipt.save()
-            choice_digits = choice.chosendigits_set.all()
-            for choice in choice_digits:
-                ChosenDigits.objects.filter(pk=choice.id).update(receipt=receipt)
-            print(receipt.id)
+            receipt = get_object_or_404(Receipt, pk=receipt_id)
+            Receipt.objects.filter(pk=receipt_id).update(vote=vote, chosen_answer=vote.ciphered_answer)
             return redirect(receipt_details, receipt_id=receipt.id)
         else:
             return redirect(index)
