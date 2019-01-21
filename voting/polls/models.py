@@ -26,3 +26,17 @@ class Vote(models.Model):
     public_key_x = models.CharField(max_length=150, blank=True, null=True)
     public_key_y = models.CharField(max_length=150, blank=True, null=True)
     private_key = models.CharField(max_length=150, blank=True, null=True)
+
+class Receipt(models.Model):
+    vote = models.ForeignKey(Vote, on_delete=models.CASCADE, null=True)
+    chosen_answer = models.CharField(max_length=300, blank=True, null=True)
+
+class ChosenDigits(models.Model):
+    question = models.ForeignKey(Question, models.DO_NOTHING)
+    Choice = models.ForeignKey(Choice, on_delete=models.CASCADE, null=True)
+    vote = models.ForeignKey(Vote, on_delete=models.CASCADE, null=True)
+    receipt = models.ForeignKey(Receipt, on_delete=models.CASCADE, null=True)
+    public_key_x = models.CharField(max_length=150, blank=True, null=True)
+    public_key_y = models.CharField(max_length=150, blank=True, null=True)
+    private_key = models.CharField(max_length=150, blank=True, null=True)
+    chosen_answer = models.CharField(max_length=300, blank=True, null=True)

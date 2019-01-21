@@ -15,15 +15,22 @@
 </ul>
 </div>
 
-<div class="container">
+<div class="fluid-container">
   <div class="row">
-    <div class="col-">
-    </div>
     <div class="col-xl-">
-        <p>Lista głosów</p>
-    </div>
-    <div class="col-">
-    </div>
+        <div class="middle" style="margin-left:1em;">
+        <h1>Oddane głosy: </h1>
+        {% if votes %}
+          <ul>
+          {% for vote in votes %}
+              <li>{{ vote.ciphered_answer }}</li>
+          {% endfor %}
+          </ul>
+          {% else %}
+            <p>Brak oddanych głosów</p>
+          {% endif %}
+        </div>
+        </div>
   </div>
 </div>
 

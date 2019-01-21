@@ -10,4 +10,5 @@ urlpatterns = [
     path('<int:question_id>/cast_vote', views.cast_vote, name='cast_vote'),
     path('list', views.list, name='list'),
     path('receipt', views.receipt, name='receipt'),
+    path('<int:receipt_id>/receipt_details', views.receipt_details, name='receipt_details'),
 ]

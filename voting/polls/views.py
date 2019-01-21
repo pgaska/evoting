@@ -1,6 +1,6 @@
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Question, Choice, Vote
+from .models import Question, Choice, Vote, ChosenDigits, Receipt
 from .forms import AddDigits, AddVote
 from .ecurve.elliptic import EllipticCurve
 from .ecurve.elgamal import Elgamal
@@ -24,12 +24,20 @@ def index(request):
     return render(request, 'polls/index.html', {'questions':questions})
 
 def list(request):
-    return render(request, 'polls/list.html')
+    votes = Vote.objects.all()
+    return render(request, 'polls/list.html', {'votes':votes})
 
 def receipt(request):
-    return render(request, 'polls/receipt.html')
+    receipts = Receipt.objects.all()
+    return render(request, 'polls/receipt.html', {'receipts':receipts})
 
-def details(request, question_id):
+def receipt_details(request, receipt_id):
+    receipt = get_object_or_404(Receipt, pk=receipt_id)
+    digits = receipt.chosendigits_set.all()
+    print(digits)
+    return render(request, 'polls/receipt_details.html', {'receipt':receipt, 'digits':digits})
+
+def details(request, question_id, receipt_id):
     question = get_object_or_404(Question, pk=question_id)
     return render(request, 'polls/details.html', {'question':question})
 
@@ -40,18 +48,18 @@ def choose_digit(request, question_id):
         elgamal = Elgamal(curve)
         (publickey, privatekey) = elgamal.keygen()
         (c1, c2) = elgamal.encrypt(publickey, choice.id)
-        cipher = str(c1)
-        cipher += str(c2.x)
-        cipher += str(c2.y)
+        cipher = str(c1)+ "\n"
+        cipher += str(c2.x)+ "\n"
+        cipher += str(c2.y)+ "\n"
 
         Choice.objects.filter(pk=choice.id).update(public_key_x_0=publickey.x, public_key_y_0=publickey.y, private_key_0=privatekey, ciphered_answer_0=cipher)
         curve = Curve()
         elgamal = Elgamal(curve)
         (publickey, privatekey) = elgamal.keygen()
         (c1, c2) = elgamal.encrypt(publickey, choice.id)
-        cipher = str(c1)
-        cipher += str(c2.x)
-        cipher += str(c2.y)
+        cipher = str(c1)+ "\n"
+        cipher += str(c2.x)+ "\n"
+        cipher += str(c2.y)+ "\n"
         Choice.objects.filter(pk=choice.id).update(public_key_x_1=publickey.x, public_key_y_1=publickey.y, private_key_1=privatekey, ciphered_answer_1=cipher)
 
 
@@ -72,10 +80,18 @@ def post_digits(request, question_id):
                     choice.chosen_answer = choice.ciphered_answer_0
                     choice.chosen_key = choice.private_key_0
                     choice.save()
+                    chosen_digit = ChosenDigits(question=question, public_key_x=choice.public_key_x_0,
+                                                public_key_y=choice.public_key_y_0, private_key=choice.private_key_0,
+                                                Choice=choice, chosen_answer=choice.chosen_answer)
+                    chosen_digit.save()
                 elif value[6] == '1':
                     choice.chosen_answer = choice.ciphered_answer_1
                     choice.chosen_key = choice.private_key_1
                     choice.save()
+                    chosen_digit = ChosenDigits(question=question, public_key_x=choice.public_key_x_1,
+                                                public_key_y=choice.public_key_y_1, private_key=choice.private_key_1,
+                                                Choice=choice, chosen_answer=choice.chosen_answer)
+                    chosen_digit.save()
 
             return redirect(details, question_id=question_id)
 
@@ -87,11 +103,17 @@ def cast_vote(request, question_id):
         ids.append(choice.id)
     if request.method == "POST":
         form = AddVote(ids, request.POST)
-        print(form)
         if form.is_valid():
             answer = form.cleaned_data['choice']
             choice = get_object_or_404(Choice, pk=int(answer))
             vote = Vote(question=question, ciphered_answer=choice.chosen_answer, private_key=choice.chosen_key)
             vote.save()
-
-    return redirect(index)
+            receipt = Receipt(vote=vote, chosen_answer=choice.chosen_answer)
+            receipt.save()
+            choice_digits = choice.chosendigits_set.all()
+            for choice in choice_digits:
+                ChosenDigits.objects.filter(pk=choice.id).update(receipt=receipt)
+            print(receipt.id)
+            return redirect(receipt_details, receipt_id=receipt.id)
+        else:
+            return redirect(index)
