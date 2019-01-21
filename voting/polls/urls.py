@@ -11,4 +11,6 @@ urlpatterns = [
     path('list', views.list, name='list'),
     path('receipt', views.receipt, name='receipt'),
     path('<int:receipt_id>/receipt_details', views.receipt_details, name='receipt_details'),
+    path('<int:question_id>/count_votes', views.count_votes, name='count_votes'),
+    path('<int:question_id>/results', views.results, name='results')
 ]

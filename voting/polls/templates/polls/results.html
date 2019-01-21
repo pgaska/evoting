@@ -3,7 +3,6 @@
 <link rel="stylesheet" type="text/css" href="{% static 'polls/style.css' %}">
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
-
 <div class="header">
   <h1>System wyborów elektronicznych</h1>
 </div>
@@ -16,17 +15,30 @@
 </ul>
 </div>
 
-<div class="middle">
-  <h1>Aktywne głosowania:</h1>
-  {% if questions %}
-    <ul>
-    {% for question in questions %}
-        <li><a href="/polls/{{ question.id }}/choose_digit">{{ question.question_text }}</a> <a href="/polls/{{question.id}}/count_votes"><button class="btn btn-danger">Liczenie głosów</button></a></li>
-    {% endfor %}
-    </ul>
-{% else %}
-    <p>Brak aktywnych głosowań</p>
-{% endif %}
+<div class="fluid-container">
+  <div class="row">
+    <div class="col-xl-">
+        <div class="middle" style="margin-left:1em;">
+            <h2>Wyniki: </h2>
+            <table class="table">
+                <thead>
+                <tr>
+                  <th scope="col">Odpowiedź</th>
+                  <th scope="col">Liczba głosów</th>
+                </tr>
+                </thead>
+              <tbody>
+              {% for choice in question.choice_set.all %}
+              <tr>
+                <th scope="row">{{choice.choice_text}}</th>
+                <td>{{ choice.result }}</td>
+              </tr>
+              {% endfor %}
+              </tbody>
+            </table>
+        </div>
+        </div>
+  </div>
 </div>
 
 <div class="footer">

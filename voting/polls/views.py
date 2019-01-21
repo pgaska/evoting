@@ -34,7 +34,6 @@ def receipt(request):
 def receipt_details(request, receipt_id):
     receipt = get_object_or_404(Receipt, pk=receipt_id)
     digits = receipt.chosendigits_set.all()
-    print(digits)
     return render(request, 'polls/receipt_details.html', {'receipt':receipt, 'digits':digits})
 
 def details(request, question_id, receipt_id):
@@ -117,3 +116,31 @@ def cast_vote(request, question_id, receipt_id):
             return redirect(receipt_details, receipt_id=receipt.id)
         else:
             return redirect(index)
+
+def count_votes(request, question_id):
+    question = get_object_or_404(Question, pk=question_id)
+    votes = Vote.objects.filter(question=question)
+    number_of_votes = dict()
+    for vote in votes:
+        cipher = vote.ciphered_answer.split("\n")
+        print(cipher)
+        curve = Curve()
+        elgamal = Elgamal(curve)
+        c2 = Point(curve, int(cipher[1]), int(cipher[2]))
+        m = elgamal.decrypt(int(vote.private_key), int(cipher[0]), c2)
+        print(m)
+
+        if m in number_of_votes:
+            number_of_votes[m] += 1
+        else:
+            number_of_votes[m] = 1
+
+    print(number_of_votes)
+    for key in number_of_votes:
+        Choice.objects.filter(pk=key, question=question).update(result=number_of_votes[key])
+
+    return redirect(results, question_id=question.id)
+
+def results(request, question_id):
+    question = get_object_or_404(Question, pk=question_id)
+    return render(request, 'polls/results.html', {'question':question})

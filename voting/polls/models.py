@@ -19,6 +19,7 @@ class Choice(models.Model):
     ciphered_answer_1 = models.CharField(max_length=300, blank=True, null=True)
     chosen_answer = models.CharField(max_length=300, blank=True, null=True)
     chosen_key = models.CharField(max_length=150, blank=True, null=True)
+    result = models.IntegerField(blank=True, null=True)
 
 class Vote(models.Model):
     question = models.ForeignKey(Question, models.DO_NOTHING, null=True)
