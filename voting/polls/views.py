@@ -82,17 +82,17 @@ def post_digits(request, question_id):
                     choice.chosen_answer = choice.ciphered_answer_0
                     choice.chosen_key = choice.private_key_0
                     choice.save()
-                    chosen_digit = ChosenDigits(question=question, public_key_x=choice.public_key_x_0,
-                                                public_key_y=choice.public_key_y_0, private_key=choice.private_key_0,
-                                                Choice=choice, chosen_answer=choice.chosen_answer, receipt=receipt)
+                    chosen_digit = ChosenDigits(question=question, public_key_x=choice.public_key_x_1,
+                                                public_key_y=choice.public_key_y_1, private_key=choice.private_key_1,
+                                                Choice=choice, chosen_answer=choice.ciphered_answer_1, receipt=receipt)
                     chosen_digit.save()
                 elif value[6] == '1':
                     choice.chosen_answer = choice.ciphered_answer_1
                     choice.chosen_key = choice.private_key_1
                     choice.save()
-                    chosen_digit = ChosenDigits(question=question, public_key_x=choice.public_key_x_1,
-                                                public_key_y=choice.public_key_y_1, private_key=choice.private_key_1,
-                                                Choice=choice, chosen_answer=choice.chosen_answer, receipt=receipt)
+                    chosen_digit = ChosenDigits(question=question, public_key_x=choice.public_key_x_0,
+                                                public_key_y=choice.public_key_y_0, private_key=choice.private_key_0,
+                                                Choice=choice, chosen_answer=choice.ciphered_answer_0, receipt=receipt)
                     chosen_digit.save()
 
             return redirect(details, question_id=question_id, receipt_id=receipt.id)
