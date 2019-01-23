@@ -1,1 +1,2 @@
-# evoting
+# Wybory elektroniczne
+Implementacja systemu bezpiecznych wyborów elektronicznych z wykorzystaniem krzywych eliptycznych na podstawie artyku³u "Towards Trustworthy e-Voting using Paper Receipts" Yunho Lee, Kwangwoo Lee, Seungjoo Kim, and Dongho Won

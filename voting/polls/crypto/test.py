@@ -21,7 +21,6 @@ class Curve(object):
 curve = Curve()
 print('zadzialalo')
 
-#inicjalizacja, używamy tej jednej kurwy, bo tak łatwiej
 elgamal = Elgamal(curve)
 
 #tworzenie kluczy
